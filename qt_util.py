@@ -114,7 +114,7 @@ class MainWidgets(QtWidgets.QWidget):
 
     # 版本提示
     def version_content(self):
-        QtWidgets.QMessageBox.information(self, "by zakiu", "项目地址：\nfork by ShenYuhan",
+        QtWidgets.QMessageBox.information(self, "by zakiu", "项目地址：https://github.com/ZakiuC/ikun_tool\ngitee：https://gitee.com/ZakiuC/ikun_tool\n\nobject forked by ShenYuhan",
                                 QtWidgets.QMessageBox.StandardButton.Yes)
 
     # 原项目地址
