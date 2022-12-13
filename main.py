@@ -91,23 +91,22 @@ class MainWidgets(QtWidgets.QWidget):
         }
         # 如果对应位置有图片资源则使用其代替闭嘴、张嘴图; 如果有对应音频则替换键盘按键
         # 图片命名：
-        #   0.png：闭嘴；1.png：张嘴
+        #   close_mouth.png：闭嘴；open_mouth.png：张嘴
         # 音频命名：
         #   a.mp3: 键盘a和A摁下发出的声音；b.mp3: 键盘b和B摁下发出的声音
         #   c_a.mp3: 键盘ctrl+a快捷键发出的声音；c_b.mp3: 键盘ctrl+b快捷键发出的声音
-        conf_dirs = ["D:/ikun/", "D:/Program Files (x86)/ikun/", "D:/Program Files/ikun/", "C:/Program Files/ikun/", "C:/Program Files (x86)/ikun/"]
-        for conf_dir in conf_dirs:
-            if os.path.exists(conf_dir) and os.path.isdir(conf_dir):
-                if os.path.exists(os.path.join(conf_dir, "0.png")):
-                    self.img_close_mouth = QtGui.QPixmap(os.path.join(conf_dir, "0.png"))
-                if os.path.exists(os.path.join(conf_dir, "1.png")):
-                    self.img_open_mouth = QtGui.QPixmap(os.path.join(conf_dir, "1.png"))
-                for root, _, files in os.walk(conf_dir):
-                    for path in files:
-                        if os.path.splitext(path)[-1] == ".mp3":
-                            self.ch2audio.update({os.path.splitext(path)[0]: os.path.join(root, path)})
-                            if os.path.splitext(path)[0].startswith("c_"):
-                                self.hot_keys_func_map.update({"<ctrl>+{}".format(str(os.path.splitext(path)[0]).split('_')[-1]): functools.partial(self.play_audio, path=self.ch2audio[os.path.splitext(path)[0]])})      
+        conf_dir = os.path.dirname(__file__)+"/ikun/"
+        if os.path.exists(conf_dir) and os.path.isdir(conf_dir):
+            if os.path.exists(os.path.join(conf_dir, "close_mouth.png")):
+                self.img_close_mouth = QtGui.QPixmap(os.path.join(conf_dir, "close_mouth.png"))
+            if os.path.exists(os.path.join(conf_dir, "open_mouth.png")):
+                self.img_open_mouth = QtGui.QPixmap(os.path.join(conf_dir, "open_mouth.png"))
+            for root, _, files in os.walk(conf_dir):
+                for path in files:
+                    if os.path.splitext(path)[-1] == ".mp3":
+                        self.ch2audio.update({os.path.splitext(path)[0]: os.path.join(root, path)})
+                        if os.path.splitext(path)[0].startswith("c_"):
+                            self.hot_keys_func_map.update({"<ctrl>+{}".format(str(os.path.splitext(path)[0]).split('_')[-1]): functools.partial(self.play_audio, path=self.ch2audio[os.path.splitext(path)[0]])})      
 
     def init_thread_pool(self, max_workers=None):
         self.pool = ThreadPoolExecutor(max_workers=max_workers)
@@ -148,7 +147,7 @@ class MainWidgets(QtWidgets.QWidget):
         self.x = desktop.width()-self.pet_width
         self.y = 100
         self.setGeometry(self.x, self.y, self.pet_width, self.pet_height)
-        self.setWindowTitle('坤音键盘-by 走神的阿圆')
+        self.setWindowTitle('ikun_tool')
 
         # 显示字母
         self.lab_content.setFont(self.font_big)
@@ -240,23 +239,33 @@ class MainWidgets(QtWidgets.QWidget):
         # 托盘
         mini_icon = QtWidgets.QSystemTrayIcon(self)
         mini_icon.setIcon(QtGui.QIcon(resource_path(os.path.join("imgs", "cai2.png"))))
-        mini_icon.setToolTip("坤音键盘-by 走神的阿圆")
+        mini_icon.setToolTip("ikun_tool")
         # 为托盘增加一个菜单选项
         tpMenu = QtWidgets.QMenu(self) 
         # 为菜单指定一个选项
 
         version_menu =  QtWidgets.QAction('作者', self, triggered=self.version_content)
         tpMenu.addAction(version_menu)
-        quit_menu_2repository = QtWidgets.QAction('原项目地址', self, triggered=self.open_origin_repository)
-        tpMenu.addAction(quit_menu_2repository)
         self.sound_key_menu = QtWidgets.QAction('关闭声音', self, triggered=self.change_sound)
         tpMenu.addAction(self.sound_key_menu)
+        self.model_key_menu = QtWidgets.QAction('关闭桌面模型', self, triggered=self.change_model)
+        tpMenu.addAction(self.model_key_menu)
+        quit_menu_2repository = QtWidgets.QAction('原项目地址', self, triggered=self.open_origin_repository)
+        tpMenu.addAction(quit_menu_2repository)
         quit_menu = QtWidgets.QAction('退出', self, triggered=self.quit)
         tpMenu.addAction(quit_menu)
 
         mini_icon.setContextMenu(tpMenu)
         mini_icon.show()
-    
+
+    def change_model(self):
+        if self.model_key_menu.text() == "关闭桌面模型":
+            self.hide()
+            self.model_key_menu.setText("打开桌面模型")
+        elif self.model_key_menu.text() == "打开桌面模型":
+            self.show()
+            self.model_key_menu.setText("关闭桌面模型")
+
     def change_sound(self):
         if self.sound_key_menu.text() == "关闭声音":
             self.sound_flag = False
